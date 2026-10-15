@@ -104,7 +104,7 @@ function renderCart() {
       removeItem(item.id),
     );
     cartItemsEl.appendChild(li);
-    total += item.price * item.qty;
+    total = +total + item.price * item.qty;
   });
 
   if (discount) {

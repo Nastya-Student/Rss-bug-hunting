@@ -70,14 +70,15 @@ function removeItem(id) {
 }
 
 function applyPromo() {
-  if ((promoInput.value = "SALE10")) {
+  if (promoInput.value === "SALE10") {
     discount = 0.1;
+    promoInput.value = "";
+    renderCart();
   }
-  renderCart();
 }
 
 function clearCart() {
-  cart.splice(0, 1);
+  cart = [];
   renderCart();
 }
 
@@ -104,16 +105,20 @@ function renderCart() {
       removeItem(item.id),
     );
     cartItemsEl.appendChild(li);
-    total += item.price * item.qty;
+    total = +total + item.price * item.qty;
   });
 
   if (discount) {
     total = total - total * discount;
   }
 
-  badgeEl.textContent = cart.length;
+  badgeEl.textContent = cart.reduce((a, b) => a + b.qty, 0);
   totalEl.textContent = total;
-  emptyMsg.hidden = true;
+  if (cart.length === 0) {
+    emptyMsg.hidden = false;
+  } else {
+    emptyMsg.hidden = true;
+  }
 }
 
 promoBtn.addEventListener("click", applyPromo);

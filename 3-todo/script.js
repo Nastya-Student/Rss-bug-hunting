@@ -12,25 +12,34 @@ let nextId = 1;
 
 function addTask() {
   const text = input.value;
-  errorEl.hidden = true;
-  tasks.push({ id: nextId++, text: text, done: false });
-  input.value = "";
+  if (!text) {
+    errorEl.hidden = false;
+  } else {
+    errorEl.hidden = true;
+    tasks.push({ id: nextId++, text: text, done: false });
+    input.value = "";
+  }
   render();
 }
 
 function toggleTask(id) {
   const task = tasks.find((t) => t.id === id);
-  task.done = true;
+  if (task.done) {
+    task.done = false;
+  } else {
+    task.done = true;
+  }
+
   render();
 }
 
 function deleteTask(id) {
-  tasks.filter((t) => t.id !== id);
+  tasks = tasks.filter((t) => t.id !== id);
   render();
 }
 
 function clearCompleted() {
-  tasks = [];
+  tasks = tasks.filter((t) => !t.done);
   render();
 }
 
@@ -39,17 +48,36 @@ function getVisibleTasks() {
 }
 
 function updateCounter() {
-  counter.textContent = "Активных задач: " + tasks.length;
+  const activeTasks = tasks.filter((t) => !t.done);
+  counter.textContent = "Активных задач: " + activeTasks.length;
 }
 
 function render() {
-  const visible = getVisibleTasks();
-  for (let i = 1; i <= visible.length; i++) {
+  list.replaceChildren();
+  let visible;
+  switch (currentFilter) {
+    case "all":
+      visible = getVisibleTasks();
+      break;
+    case "active":
+      visible = getVisibleTasks().filter((t) => !t.done);
+      break;
+    case "done":
+      visible = getVisibleTasks().filter((t) => t.done);
+      break;
+    default:
+      visible = getVisibleTasks();
+  }
+  for (let i = 0; i < visible.length; i++) {
     const task = visible[i];
     const li = document.createElement("li");
     li.className = "task";
     if (task.done) {
       li.classList.add("completed");
+      li.classList.add("done");
+    } else {
+      li.classList.remove("completed");
+      li.classList.remove("done");
     }
 
     const span = document.createElement("span");
@@ -69,7 +97,7 @@ function render() {
   updateCounter();
 }
 
-addBtn.addEventListener("dblclick", addTask);
+addBtn.addEventListener("click", addTask);
 clearBtn.addEventListener("click", clearCompleted);
 
 filterButtons.forEach((btn) => {
